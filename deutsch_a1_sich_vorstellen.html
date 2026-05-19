@@ -32,7 +32,7 @@
     }
 
     #api-key-modal {
-      display: flex;
+      display: flex !important;
       position: fixed;
       top: 0;
       left: 0;
@@ -107,15 +107,6 @@
 
     .api-key-btn:hover {
       background: #cf7318;
-    }
-
-    .api-key-btn.secondary {
-      background: var(--light);
-      color: var(--primary);
-    }
-
-    .api-key-btn.secondary:hover {
-      background: var(--mid);
     }
 
     .api-key-bottom {
@@ -332,7 +323,6 @@
     <input type="password" id="api-key-input" class="api-key-input" placeholder="sk-ant-..." autocomplete="off" />
     <div class="api-key-buttons">
       <button id="api-key-submit-btn" class="api-key-btn">Speichern</button>
-      <button id="api-key-skip-btn" class="api-key-btn secondary">Überspringen</button>
     </div>
     <div class="api-key-bottom">
       Keinen Key? <a href="https://console.anthropic.com" target="_blank">Hier registrieren</a>
@@ -375,32 +365,28 @@ function initModal() {
   const modal = document.getElementById('api-key-modal');
   const input = document.getElementById('api-key-input');
   const submitBtn = document.getElementById('api-key-submit-btn');
-  const skipBtn = document.getElementById('api-key-skip-btn');
   
-  if (storedKey) {
+  // Wenn Key gespeichert ist, modal verstecken
+  if (storedKey && storedKey.length > 0) {
     apiKey = storedKey;
     modal.classList.add('hidden');
     startApp();
   } else {
+    // Sonst: Modal immer sichtbar machen
     modal.classList.remove('hidden');
     input.focus();
     
     submitBtn.onclick = () => {
       const key = input.value.trim();
-      if (key) {
+      if (key && key.length > 10) {
         apiKey = key;
         localStorage.setItem('daf_api_key', key);
         modal.classList.add('hidden');
         startApp();
       } else {
-        alert('Bitte gib einen API-Schlüssel ein oder klicke auf "Überspringen".');
+        alert('⚠️ Bitte gib einen gültigen API-Schlüssel ein (mindestens 10 Zeichen).');
+        input.focus();
       }
-    };
-    
-    skipBtn.onclick = () => {
-      modal.classList.add('hidden');
-      addError('⚠️ Kein API-Schlüssel eingegeben. Die App kann ohne Key nicht funktionieren.');
-      setInputEnabled(false);
     };
     
     input.addEventListener('keypress', (e) => {
@@ -411,7 +397,6 @@ function initModal() {
 
 function startApp() {
   if (!apiKey) {
-    addError('⚠️ Kein API-Schlüssel vorhanden. Bitte aktualisiere die Seite.');
     return;
   }
   addAI('Hallo! Ich bin Anna, deine KI-Gesprächspartnerin. 👋\n\nWie heißt du?');
